@@ -1,6 +1,6 @@
 {
   "name": "anime-tracker-mobile",
-  "version": "1.0.0",
+  "version": "1.8.419",
   "description": "Mobile app for Anime History Tracker",
   "scripts": {
     "build": "npm run build:pwa && npx cap sync",

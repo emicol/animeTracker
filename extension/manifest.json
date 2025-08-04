@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Anime History Tracker",
-  "version": "1.0.0",
-  "description": "Track your anime viewing history automatically",
+  "version": "1.8.419",
+  "description": "Track your anime viewing history automatically on Anime-Sama",
   
   "permissions": [
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "alarms"
   ],
   
   "host_permissions": [
@@ -30,7 +31,7 @@
   
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Anime History"
+    "default_title": "Anime History Tracker"
   },
   
   "icons": {
@@ -42,8 +43,10 @@
   
   "externally_connectable": {
     "matches": [
-      "https://localhost:3000/*",
-      "https://*.github.io/*"
+      "https://emicol.github.io/*"
     ]
-  }
+  },
+  
+  "homepage_url": "https://github.com/emicol/animeTracker",
+  "author": "emicol"
 }

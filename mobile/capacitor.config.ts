@@ -3,6 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.emicol.animetracker',
   appName: 'Anime History Tracker',
+  version: '1.8.419',
   webDir: 'www',
   server: {
     androidScheme: 'https'

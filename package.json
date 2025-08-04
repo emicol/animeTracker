@@ -1,9 +1,12 @@
 {
   "name": "anime-history-tracker",
-  "version": "1.0.0",
+  "version": "1.8.419",
   "description": "Track your anime viewing history automatically",
   "private": true,
-  "workspaces": ["pwa", "mobile"],
+  "workspaces": [
+    "pwa",
+    "mobile"
+  ],
   "scripts": {
     "dev": "npm run dev:pwa",
     "dev:pwa": "cd pwa && npm run dev",
@@ -27,11 +30,18 @@
     "type": "git",
     "url": "git@github.com:emicol/animeTracker.git"
   },
-  "keywords": ["anime", "tracker", "history", "extension", "pwa"],
+  "keywords": [
+    "anime",
+    "tracker",
+    "history",
+    "extension",
+    "pwa"
+  ],
   "author": "emicol",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "typescript": "^5.9.2"
   }
 }

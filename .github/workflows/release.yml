@@ -1,0 +1,115 @@
+name: 🚀 Build & Release
+
+on:
+  push:
+    tags:
+      - 'extension-v*'
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: |
+          pwa/package-lock.json
+          mobile/package-lock.json
+        
+    - name: 📦 Install dependencies
+      run: |
+        cd pwa && npm ci
+        cd ../mobile && npm ci
+        
+    - name: 🎨 Setup ImageMagick
+      run: |
+        sudo apt-get update
+        sudo apt-get install imagemagick -y
+        
+    - name: 🖼️ Generate icons
+      run: |
+        chmod +x fix-icons.sh
+        ./fix-icons.sh --generate-only
+        
+    - name: 🏗️ Build PWA
+      run: |
+        cd pwa && npm run build
+        
+    - name: 📦 Package Extension
+      run: |
+        cd extension
+        # Nettoyer et préparer
+        rm -f *.zip
+        
+        # Créer l'archive
+        zip -r "../anime-tracker-extension-${GITHUB_REF#refs/tags/}.zip" . \
+          -x "*.md" "node_modules/*" "*.log" "*.zip" ".DS_Store"
+        
+        # Version "latest" pour lien direct
+        cp "../anime-tracker-extension-${GITHUB_REF#refs/tags/}.zip" \
+           "../anime-tracker-extension-latest.zip"
+           
+    - name: 📱 Build APK (if possible)
+      run: |
+        if [ -f "build-apk.sh" ]; then
+          chmod +x build-apk.sh
+          timeout 300 ./build-apk.sh || echo "APK build timeout - will be available in manual releases"
+          
+          # Copier l'APK s'il existe
+          if ls dist/*.apk 1> /dev/null 2>&1; then
+            cp dist/*.apk anime-tracker-mobile.apk
+          fi
+        fi
+        
+    - name: 📋 Generate Release Notes
+      id: release_notes
+      run: |
+        echo "## 🎌 Anime History Tracker ${GITHUB_REF#refs/tags/}" > release_notes.md
+        echo "" >> release_notes.md
+        echo "### 📦 Fichiers de cette release:" >> release_notes.md
+        echo "- **Extension navigateur** → \`anime-tracker-extension-latest.zip\`" >> release_notes.md
+        if [ -f "anime-tracker-mobile.apk" ]; then
+          echo "- **Application mobile** → \`anime-tracker-mobile.apk\`" >> release_notes.md
+        fi
+        echo "- **PWA** → [emicol.github.io/animeTracker](https://emicol.github.io/animeTracker/)" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "### 🚀 Installation rapide:" >> release_notes.md
+        echo "1. Téléchargez \`anime-tracker-extension-latest.zip\`" >> release_notes.md
+        echo "2. Décompressez le fichier" >> release_notes.md
+        echo "3. Allez dans \`chrome://extensions/\`" >> release_notes.md
+        echo "4. Activez le mode développeur" >> release_notes.md
+        echo "5. Cliquez \"Charger extension non empaquetée\"" >> release_notes.md
+        echo "6. Sélectionnez le dossier décompressé" >> release_notes.md
+        echo "" >> release_notes.md
+        echo "**Documentation complète:** [docs/EXTENSION_INSTALL.md](docs/EXTENSION_INSTALL.md)" >> release_notes.md
+        
+    - name: 🚀 Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          anime-tracker-extension-${{ github.ref_name }}.zip
+          anime-tracker-extension-latest.zip
+          anime-tracker-mobile.apk
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 📊 Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: anime-tracker-builds
+        path: |
+          anime-tracker-extension-*.zip
+          anime-tracker-mobile.apk
+        retention-days: 30

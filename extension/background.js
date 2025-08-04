@@ -454,3 +454,160 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
 });
 
 console.log('✅ Service Worker Anime History Tracker prêt');
+
+// === SYSTÈME DE MISE À JOUR ===
+class UpdateManager {
+  constructor() {
+    this.githubAPI = 'https://api.github.com/repos/emicol/animeTracker/releases/latest';
+    this.currentVersion = chrome.runtime.getManifest().version;
+    this.checkInterval = 24 * 60 * 60 * 1000; // 24h
+    
+    this.init();
+  }
+  
+  async init() {
+    // Vérifier au démarrage (avec délai)
+    setTimeout(() => this.checkForUpdates(), 5000);
+    
+    // Vérification périodique
+    chrome.alarms.create('updateCheck', {
+      when: Date.now() + this.checkInterval,
+      periodInMinutes: 24 * 60 // Tous les jours
+    });
+    
+    chrome.alarms.onAlarm.addListener((alarm) => {
+      if (alarm.name === 'updateCheck') {
+        this.checkForUpdates();
+      }
+    });
+    
+    // Gestion des clics sur notifications
+    chrome.notifications.onClicked.addListener((notificationId) => {
+      if (notificationId.startsWith('update-')) {
+        chrome.tabs.create({
+          url: 'https://github.com/emicol/animeTracker/releases/latest'
+        });
+        chrome.notifications.clear(notificationId);
+        chrome.action.setBadgeText({ text: '' });
+      }
+    });
+  }
+  
+  async checkForUpdates() {
+    try {
+      console.log('🔍 Vérification mises à jour...');
+      
+      const response = await fetch(this.githubAPI, {
+        cache: 'no-cache'
+      });
+      
+      if (!response.ok) return;
+      
+      const release = await response.json();
+      const latestVersion = release.tag_name.replace(/^extension-v/, '');
+      
+      if (this.isNewerVersion(latestVersion, this.currentVersion)) {
+        this.notifyUpdate(release, latestVersion);
+      } else {
+        console.log('✅ Extension à jour');
+      }
+    } catch (error) {
+      console.error('❌ Erreur vérification MAJ:', error);
+    }
+  }
+  
+  isNewerVersion(latest, current) {
+    const parseVersion = (v) => v.split('.').map(Number);
+    const latestParts = parseVersion(latest);
+    const currentParts = parseVersion(current);
+    
+    for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+      const l = latestParts[i] || 0;
+      const c = currentParts[i] || 0;
+      
+      if (l > c) return true;
+      if (l < c) return false;
+    }
+    return false;
+  }
+  
+  async notifyUpdate(release, version) {
+    console.log(`🆕 Nouvelle version disponible: ${version}`);
+    
+    // Badge sur l'icône
+    chrome.action.setBadgeText({ text: '!' });
+    chrome.action.setBadgeBackgroundColor({ color: '#ff4444' });
+    chrome.action.setTitle({ 
+      title: `Anime History Tracker - MAJ v${version} disponible!` 
+    });
+    
+    // Notification
+    const notificationId = `update-${Date.now()}`;
+    chrome.notifications.create(notificationId, {
+      type: 'basic',
+      iconUrl: 'icons/icon48.png',
+      title: '🎌 Anime Tracker - Mise à jour disponible',
+      message: `Version ${version} disponible ! Cliquez pour télécharger.`,
+      buttons: [
+        { title: '📥 Télécharger' },
+        { title: '⏰ Plus tard' }
+      ]
+    });
+    
+    // Stocker l'info de MAJ
+    chrome.storage.local.set({
+      updateAvailable: {
+        version: version,
+        releaseUrl: release.html_url,
+        downloadUrl: release.assets.find(a => a.name.includes('latest'))?.browser_download_url,
+        notifiedAt: Date.now()
+      }
+    });
+  }
+  
+  async getUpdateInfo() {
+    const result = await chrome.storage.local.get('updateAvailable');
+    return result.updateAvailable || null;
+  }
+  
+  async clearUpdateNotification() {
+    chrome.action.setBadgeText({ text: '' });
+    chrome.storage.local.remove('updateAvailable');
+  }
+}
+
+// Initialiser le gestionnaire de mises à jour
+const updateManager = new UpdateManager();
+
+// Ajouter aux messages handlers
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  switch (message.action) {
+    case 'GET_UPDATE_INFO':
+      updateManager.getUpdateInfo()
+        .then(info => sendResponse({ success: true, updateInfo: info }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true;
+      
+    case 'CLEAR_UPDATE_NOTIFICATION':
+      updateManager.clearUpdateNotification()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true;
+      
+    case 'CHECK_UPDATES':
+      updateManager.checkForUpdates()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true;
+      
+    case 'GET_VERSION':
+      sendResponse({ 
+        success: true, 
+        version: updateManager.currentVersion,
+        extensionId: chrome.runtime.id
+      });
+      return true;
+  }
+});
+
+console.log('🔄 Système de mise à jour initialisé');

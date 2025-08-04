@@ -97,3 +97,52 @@ document.addEventListener('DOMContentLoaded', () => {
   checkUpdateStatus();
   // ... reste du code existant
 });
+
+// === GESTION DES MISES À JOUR DANS POPUP ===
+async function checkUpdateStatus() {
+  try {
+    const response = await chrome.runtime.sendMessage({ action: 'GET_UPDATE_INFO' });
+    
+    if (response.success && response.updateInfo) {
+      showUpdateBanner(response.updateInfo);
+    }
+  } catch (error) {
+    console.error('Erreur vérification MAJ:', error);
+  }
+}
+
+function showUpdateBanner(updateInfo) {
+  const container = document.querySelector('.popup-container');
+  
+  const banner = document.createElement('div');
+  banner.className = 'update-banner';
+  banner.innerHTML = `
+    <div class="update-content">
+      <strong>🆕 Mise à jour v${updateInfo.version}</strong>
+      <p>Une nouvelle version est disponible !</p>
+      <div class="update-actions">
+        <button id="downloadUpdate" class="btn-update">📥 Télécharger</button>
+        <button id="dismissUpdate" class="btn-dismiss">✕</button>
+      </div>
+    </div>
+  `;
+  
+  container.insertBefore(banner, container.firstChild);
+  
+  // Actions
+  document.getElementById('downloadUpdate').onclick = () => {
+    chrome.tabs.create({ url: updateInfo.releaseUrl });
+    window.close();
+  };
+  
+  document.getElementById('dismissUpdate').onclick = async () => {
+    await chrome.runtime.sendMessage({ action: 'CLEAR_UPDATE_NOTIFICATION' });
+    banner.remove();
+  };
+}
+
+// Ajouter à l'initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  checkUpdateStatus();
+  // ... reste du code existant
+});

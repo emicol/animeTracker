@@ -102,6 +102,17 @@ const ExtensionStatus = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleDownloadExtension = () => {
+    // En développement, pointer vers GitHub
+    const downloadUrl = 'https://github.com/emicol/animeTracker/releases/latest/download/anime-tracker-extension-latest.zip';
+    window.open(downloadUrl, '_blank');
+  };
+
+  const handleInstallGuide = () => {
+    const guideUrl = 'https://github.com/emicol/animeTracker/blob/master/docs/EXTENSION_INSTALL.md';
+    window.open(guideUrl, '_blank');
+  };
+
   if (extensionStatus.checking) {
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -150,26 +161,24 @@ const ExtensionStatus = () => {
           </p>
           
           <div className="mt-4 flex flex-wrap gap-3">
-            <a
-              href="https://github.com/emicol/animeTracker/releases/latest/download/anime-tracker-extension-latest.zip"
-              className="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
+            <button
+              onClick={handleDownloadExtension}
+              className="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors cursor-pointer"
             >
               <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
               Télécharger Extension
-            </a>
+            </button>
             
-            <a
-              href="https://github.com/emicol/animeTracker/blob/master/docs/EXTENSION_INSTALL.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            <button
+              onClick={handleInstallGuide}
+              className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
             >
               📚 Guide d'installation
-            </a>
+            </button>
             
             <button
               onClick={checkExtension}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
             >
               🔄 Vérifier à nouveau
             </button>
@@ -177,13 +186,29 @@ const ExtensionStatus = () => {
           
           <div className="mt-4 p-3 bg-amber-100 rounded-md">
             <p className="text-sm text-amber-800">
-              <strong>💡 Après installation :</strong>
+              <strong>💡 Instructions rapides :</strong>
             </p>
             <ol className="text-sm text-amber-700 mt-1 space-y-1">
-              <li>1. Visitez Anime-Sama.fr</li>
-              <li>2. Regardez un épisode d'anime</li>
-              <li>3. Revenez ici pour voir votre historique synchronisé</li>
+              <li>1. Cliquez "Télécharger Extension" ci-dessus</li>
+              <li>2. Décompressez le fichier ZIP téléchargé</li>
+              <li>3. Allez dans chrome://extensions/</li>
+              <li>4. Activez le "Mode développeur"</li>
+              <li>5. Cliquez "Charger extension non empaquetée"</li>
+              <li>6. Sélectionnez le dossier décompressé</li>
+              <li>7. Visitez Anime-Sama.fr et regardez un anime</li>
+              <li>8. Revenez ici pour voir votre historique !</li>
             </ol>
+          </div>
+          
+          <div className="mt-3 p-3 bg-blue-50 rounded-md">
+            <p className="text-sm text-blue-800">
+              <strong>🔗 Liens utiles :</strong>
+            </p>
+            <div className="text-sm text-blue-700 mt-1 space-y-1">
+              <div>• <a href="https://anime-sama.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">Anime-Sama.fr</a> - Site de streaming</div>
+              <div>• <a href="https://github.com/emicol/animeTracker" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">GitHub du projet</a> - Code source</div>
+              <div>• <a href="https://github.com/emicol/animeTracker/issues" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">Support</a> - Signaler un problème</div>
+            </div>
           </div>
         </div>
       </div>

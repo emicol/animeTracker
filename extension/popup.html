@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anime History Tracker</title>
+  <link rel="stylesheet" href="styles/popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <h1>🎌 Anime Tracker</h1>
+    </header>
+    
+    <main class="popup-main">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="totalAnimes">-</span>
+          <span class="stat-label">Animes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="totalEpisodes">-</span>
+          <span class="stat-label">Épisodes</span>
+        </div>
+      </div>
+      
+      <div class="recent-activity">
+        <h3>Activité récente</h3>
+        <div id="recentList" class="recent-list">
+          <div class="loading">Chargement...</div>
+        </div>
+      </div>
+      
+      <div class="popup-actions">
+        <button id="openPWA" class="btn-primary">
+          Ouvrir Dashboard
+        </button>
+        <button id="refreshData" class="btn-secondary">
+          Actualiser
+        </button>
+      </div>
+    </main>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

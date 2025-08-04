@@ -1,0 +1,13 @@
+{
+  "name": "anime-tracker-extension",
+  "version": "1.0.0",
+  "description": "Browser extension for tracking anime viewing history",
+  "scripts": {
+    "dev": "echo 'Extension in development mode'",
+    "build": "node ../scripts/build-extension.js",
+    "zip": "zip -r anime-tracker-extension.zip . -x '*.zip' 'node_modules/*' '.git/*'"
+  },
+  "devDependencies": {
+    "archiver": "^6.0.1"
+  }
+}

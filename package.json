@@ -1,0 +1,37 @@
+{
+  "name": "anime-history-tracker",
+  "version": "1.0.0",
+  "description": "Track your anime viewing history automatically",
+  "private": true,
+  "workspaces": ["pwa", "mobile"],
+  "scripts": {
+    "dev": "npm run dev:pwa",
+    "dev:pwa": "cd pwa && npm run dev",
+    "dev:extension": "cd extension && npm run dev",
+    "build": "npm run build:all",
+    "build:all": "npm run build:pwa && npm run build:extension && npm run build:mobile",
+    "build:pwa": "cd pwa && npm run build",
+    "build:extension": "node scripts/build-extension.js",
+    "build:mobile": "cd mobile && npm run build",
+    "build:apk": "bash scripts/build-and-serve.sh",
+    "update:version": "bash scripts/update-version.sh",
+    "deploy:github": "node scripts/deploy-github.js",
+    "deploy:extension": "node scripts/deploy-extension.js",
+    "generate:icons": "node scripts/generate-icons.js",
+    "install:all": "npm install && cd pwa && npm install && cd ../mobile && npm install",
+    "clean": "rm -rf node_modules pwa/node_modules pwa/dist mobile/node_modules mobile/dist",
+    "lint": "cd pwa && npm run lint",
+    "test": "cd pwa && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:emicol/animeTracker.git"
+  },
+  "keywords": ["anime", "tracker", "history", "extension", "pwa"],
+  "author": "emicol",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3"
+  }
+}
